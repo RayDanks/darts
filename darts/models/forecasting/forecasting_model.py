@@ -259,6 +259,7 @@ class ForecastingModel(ABC, metaclass=ModelMeta):
         future_covariates: Optional[TimeSeries],
         num_samples: int,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> TimeSeries:
         return self.predict(n, num_samples=num_samples, verbose=verbose)
 
@@ -556,6 +557,7 @@ class ForecastingModel(ABC, metaclass=ModelMeta):
         overlap_end: bool = False,
         last_points_only: bool = True,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> Union[
         TimeSeries, List[TimeSeries], Sequence[TimeSeries], Sequence[List[TimeSeries]]
     ]:
@@ -643,6 +645,8 @@ class ForecastingModel(ABC, metaclass=ModelMeta):
             Otherwise returns a list of historical ``TimeSeries`` forecasts.
         verbose
             Whether to print progress
+        predict_kwargs
+            Inputs to be parsed to the model's ``predict()`` method.
         Returns
         -------
         TimeSeries or List[TimeSeries] or List[List[TimeSeries]]
@@ -1897,7 +1901,7 @@ class FutureCovariatesLocalForecastingModel(LocalForecastingModel, ABC):
         n: int,
         future_covariates: Optional[TimeSeries] = None,
         num_samples: int = 1,
-        **kwargs,
+        **predict_kwargs,
     ) -> TimeSeries:
         """Forecasts values for `n` time steps after the end of the training series.
 
@@ -1914,6 +1918,8 @@ class FutureCovariatesLocalForecastingModel(LocalForecastingModel, ABC):
         num_samples
             Number of times a prediction is sampled from a probabilistic model. Should be left set to 1
             for deterministic models.
+        predict_kwargs
+            Inputs to be parsed to the model's ``predict()`` method.
 
         Returns
         -------
@@ -1963,7 +1969,10 @@ class FutureCovariatesLocalForecastingModel(LocalForecastingModel, ABC):
             )
 
         return self._predict(
-            n, future_covariates=future_covariates, num_samples=num_samples, **kwargs
+            n,
+            future_covariates=future_covariates,
+            num_samples=num_samples,
+            **predict_kwargs,
         )
 
     @abstractmethod
@@ -1973,7 +1982,7 @@ class FutureCovariatesLocalForecastingModel(LocalForecastingModel, ABC):
         future_covariates: Optional[TimeSeries] = None,
         num_samples: int = 1,
         verbose: bool = False,
-        **kwargs,
+        **predict_kwargs,
     ) -> TimeSeries:
         """Forecasts values for a certain number of time steps after the end of the series.
         DualCovariatesModels must implement the predict logic in this method.
@@ -1996,12 +2005,14 @@ class FutureCovariatesLocalForecastingModel(LocalForecastingModel, ABC):
         future_covariates: Optional[TimeSeries],
         num_samples: int,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> TimeSeries:
         return self.predict(
             n,
             future_covariates=future_covariates,
             num_samples=num_samples,
             verbose=verbose,
+            **predict_kwargs,
         )
 
     @property
@@ -2064,7 +2075,7 @@ class TransferableFutureCovariatesLocalForecastingModel(
         series: Optional[TimeSeries] = None,
         future_covariates: Optional[TimeSeries] = None,
         num_samples: int = 1,
-        **kwargs,
+        **predict_kwargs,
     ) -> TimeSeries:
         """If the `series` parameter is not set, forecasts values for `n` time steps after the end of the training
         series. If some future covariates were specified during the training, they must also be specified here.
@@ -2089,6 +2100,8 @@ class TransferableFutureCovariatesLocalForecastingModel(
         num_samples
             Number of times a prediction is sampled from a probabilistic model. Should be left set to 1
             for deterministic models.
+        predict_kwargs
+            Inputs to be parsed to the model's ``predict()`` method.
 
         Returns
         -------
@@ -2137,7 +2150,7 @@ class TransferableFutureCovariatesLocalForecastingModel(
             historic_future_covariates=historic_future_covariates,
             future_covariates=future_covariates,
             num_samples=num_samples,
-            **kwargs,
+            **predict_kwargs,
         )
 
         # restoring the original training ts
@@ -2187,6 +2200,7 @@ class TransferableFutureCovariatesLocalForecastingModel(
         future_covariates: Optional[TimeSeries] = None,
         num_samples: int = 1,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> TimeSeries:
         """Forecasts values for a certain number of time steps after the end of the series.
         TransferableFutureCovariatesLocalForecastingModel must implement the predict logic in this method.
@@ -2201,6 +2215,7 @@ class TransferableFutureCovariatesLocalForecastingModel(
         future_covariates: Optional[TimeSeries],
         num_samples: int,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> TimeSeries:
         return self.predict(
             n=n,
@@ -2208,6 +2223,7 @@ class TransferableFutureCovariatesLocalForecastingModel(
             future_covariates=future_covariates,
             num_samples=num_samples,
             verbose=verbose,
+            **predict_kwargs,
         )
 
     def _supports_non_retrainable_historical_forecasts(self) -> bool:
