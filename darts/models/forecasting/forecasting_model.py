@@ -881,6 +881,7 @@ class ForecastingModel(ABC, metaclass=ModelMeta):
                     future_covariates=future_covariates_,
                     num_samples=num_samples,
                     verbose=verbose,
+                    **predict_kwargs,
                 )
 
                 if last_points_only:
@@ -1801,6 +1802,7 @@ class GlobalForecastingModel(ForecastingModel, ABC):
         future_covariates: Optional[TimeSeries],
         num_samples: int,
         verbose: bool = False,
+        **predict_kwargs,
     ) -> TimeSeries:
         return self.predict(
             n,
